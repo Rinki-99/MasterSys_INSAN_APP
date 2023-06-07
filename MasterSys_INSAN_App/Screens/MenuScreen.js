@@ -1,14 +1,25 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import { useNavigation } from '@react-navigation/native'
 
 const MenuScreen = () => {
+  const navigation = useNavigation()
+
+  const handlePresencePress = () => {
+    navigation.navigate("PresenceActiviteDate")
+  }
+
+  const handleCotisationPress = () => {
+    navigation.navigate("SemestreCotisation")
+  }
+
   return (
     <View
         style={styles.container}
     >
       <View style={styles.buttonContainer}>
           <TouchableOpacity
-          onPress={() => {}}
+          onPress={handlePresencePress}
           style={styles.button}
           >
               <Text style={styles.buttonText}>Présence</Text>
@@ -17,7 +28,7 @@ const MenuScreen = () => {
       
       <View style={styles.buttonContainer}>
           <TouchableOpacity
-          onPress={() => {}}
+          onPress={handleCotisationPress}
           style={styles.button}
           >
               <Text style={styles.buttonText}>Cotisation</Text>

@@ -1,0 +1,17 @@
+[
+  {
+    "Nom": "Doe",
+    "Prénom": "John",
+    "Montant_cotisation": 50
+  },
+  {
+    "Nom": "Smith",
+    "Prénom": "Alice",
+    "Montant_cotisation": 50
+  },
+  {
+    "Nom": "Johnson",
+    "Prénom": "Michael",
+    "Montant_cotisation": 50
+  }
+]

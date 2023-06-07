@@ -5,6 +5,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './Screens/LoginScreen';
 import MenuScreen from './Screens/MenuScreen';
+import PresenceScreen from './Screens/PresenceScreen';
+import CotisationScreen from './Screens/CotisationScreen';
+import SemestreCotisationScreen from './Screens/SemestreCotisationScreen';
+import PresenceActiviteDateScreen from './Screens/PresenceActiviteDateScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -16,6 +20,10 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
         <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Presence" component={PresenceScreen} />
+        <Stack.Screen name="Cotisation" component={CotisationScreen} />
+        <Stack.Screen name="SemestreCotisation" component={SemestreCotisationScreen} />
+        <Stack.Screen name="PresenceActiviteDate" component={PresenceActiviteDateScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
