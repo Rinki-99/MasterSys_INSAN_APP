@@ -2,16 +2,19 @@
   {
     "Nom": "Doe",
     "Prénom": "John",
-    "Montant_cotisation": 50
+    "Montant_cotisation": 50,
+    "Présence":false
   },
   {
     "Nom": "Smith",
     "Prénom": "Alice",
-    "Montant_cotisation": 50
+    "Montant_cotisation": 50,
+    "Présence":false
   },
   {
     "Nom": "Johnson",
     "Prénom": "Michael",
-    "Montant_cotisation": 50
+    "Montant_cotisation": 50,
+    "Présence":false
   }
 ]

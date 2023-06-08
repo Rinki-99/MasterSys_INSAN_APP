@@ -10,7 +10,23 @@ const SemestreCotisationScreen = () => {
   const navigation = useNavigation()
 
   const handleSuivantPress = () => {
-    navigation.navigate("Cotisation")
+    if (validateFields()) {
+      navigation.navigate("Cotisation", { annee: annee, semestre: semestre });
+    }
+  }
+
+  const validateFields = () => {
+    if (annee.trim() === '' || annee.trim() != new Date().getFullYear()) {
+      // Le champ "Année" est vide ou different de l'année courante
+      return false;
+    }
+
+    if (semestre.trim() === '' || semestre.trim() < 1 || semestre.trim() > 2 ) {
+      // Le champ "Semestre" est vide ou inférieur à 1 ou supérieur à 2
+      return false;
+    }
+
+    return true;
   }
 
   return (
@@ -40,7 +56,7 @@ const SemestreCotisationScreen = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={handleSuivantPress}
-          style={styles.button}
+          style={[styles.button, {opacity: validateFields() ? 1 : 0.5,}]}
           >
             <Text style={styles.buttonText}>Suivant</Text>
           </TouchableOpacity>
@@ -80,7 +96,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',

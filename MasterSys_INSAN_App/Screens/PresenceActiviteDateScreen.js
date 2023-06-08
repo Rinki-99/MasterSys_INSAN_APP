@@ -11,14 +11,25 @@ const PresenceActiviteDateScreen = () => {
 
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
-  
+
+  const [isActivityValid, setActivityValid] = useState(false);
+  const [isDateValid, setDateValid] = useState(false);
+
 
   const handleSuivantPress = () => {
-    navigation.navigate("Presence")
+    if (isActivityValid && isDateValid) {
+      navigation.navigate("Presence", { activite: selected, date: dateActivite });
+    }
   }
+
+  const handleActivitySelect = (selectedValue) => {
+    setSelected(selectedValue);
+    setActivityValid(!!selectedValue); // Met à jour l'état de validité de l'activité en vérifiant si une valeur est sélectionnée
+  };
 
   const toggleDatepicker = () => {
     setShowPicker(!showPicker);
+    setDateValid(false);
   };
 
   const formatDateToString = (rawDate) => {
@@ -26,7 +37,7 @@ const PresenceActiviteDateScreen = () => {
 
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
-    let day = date.getDay();
+    let day = date.getDate();
 
     return `${day}-${month}-${year}`;
   }
@@ -35,6 +46,7 @@ const PresenceActiviteDateScreen = () => {
     if(type == "set"){
       const currentDate = selectedDate;
       setDateActivite(currentDate);
+      setDateValid(true); // Met à jour l'état de validité de la date lorsque la date est sélectionnée
 
       if(Platform.OS === "android"){
         toggleDatepicker();
@@ -49,6 +61,7 @@ const PresenceActiviteDateScreen = () => {
   const confirmIOSDate = () => {
     setDateActivite(formatDateToString(dateActivite));
     toggleDatepicker();
+    setDateValid(true); // Met à jour l'état de validité de la date quand on clique sur le bouton confirmer
   }
   
   const data = [
@@ -68,7 +81,7 @@ const PresenceActiviteDateScreen = () => {
         >
           <Text style={styles.label}>Activité</Text>
           <SelectList 
-            setSelected={(val) => setSelected(val)} 
+            setSelected={handleActivitySelect}
             data={data} 
             save="value"
           />
@@ -151,6 +164,7 @@ const PresenceActiviteDateScreen = () => {
                                   padding: 15,
                                   borderRadius: 10,
                                   alignItems: 'center',
+                                  opacity: isDateValid && isActivityValid ? 1 : 0.5, // Désactive le bouton si la date n'est pas valide
                                   }]}
           >
             <Text style={styles.buttonText}>Suivant</Text>

@@ -1,15 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import data from '../fichier_json/personnes.json'
+import data from '../fichier_json/réunion mensuelle_10-09-2023.json'
+import { useNavigation, useRoute } from '@react-navigation/native'
+
 
 const CotisationScreen = () => {
+  const [editable, setEditable] = useState(false);
+  const [cotisations, setCotisations] = useState([...data]);
+
+  const navigation = useNavigation()
+  const route = useRoute();
+  const { annee, semestre } = route.params;
+
+  // Lire les composantes transférées
+  console.log(annee, semestre);
 
   const handleSave = () => {
-    
+    const jsonData = JSON.stringify(data);
+    console.log(jsonData); // Affiche les données JSON dans la console à titre d'exemple
+    navigation.navigate("Menu");
   };
+
   const handleModify = () => {
-    
+    setEditable(prevEditable => !prevEditable);
   }
+
+  const handleCotisationChange = (index, text) => {
+      setCotisations(prevCotisations => {
+      const updatedCotisations = [...prevCotisations];
+      updatedCotisations[index].Montant_cotisation = parseInt(text);
+      return updatedCotisations;
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -23,7 +45,13 @@ const CotisationScreen = () => {
           </View>
         </View>
         {data.map((person, index) => (
-          <PersonListItem key={index} person={person} />
+          <PersonListItem 
+            key={index}  
+            index={index} 
+            person={person} 
+            editable={editable} 
+            handleCotisationChange={handleCotisationChange}
+          />
         ))}
       </ScrollView>
       <View style={styles.legendeContainer}>
@@ -39,11 +67,20 @@ const CotisationScreen = () => {
   );
 };
 
-const PersonListItem = ({ person }) => {
+const PersonListItem = ({ person, index, editable, handleCotisationChange }) => {
   const [cotisation, setCotisation] = useState(person.Montant_cotisation.toString());
 
+  useEffect(() => {
+    setCotisation(person.Montant_cotisation.toString());
+  }, [person.Montant_cotisation]);
+
+  const handleInputChange = (text) => {
+    setCotisation(text);
+    handleCotisationChange(index, text);
+  };
+
   return (
-<View style={styles.personContainer}>
+    <View style={styles.personContainer}>
       <View style={styles.column}>
         <Text style={styles.surname}>{person.Nom}</Text>
         <Text style={styles.name}>{person.Prénom}</Text>
@@ -53,8 +90,10 @@ const PersonListItem = ({ person }) => {
         <TextInput
           style={styles.input}
           value={cotisation}
-          onChangeText={text => setCotisation(text)}
+          onChangeText={handleInputChange}
           keyboardType="numeric"
+          maxLength={3}
+          editable={editable}
         />
       </View>
     </View>

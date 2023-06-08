@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Switch } from 'react-native';
-import data from '../fichier_json/personnes.json'
+import { useNavigation, useRoute } from '@react-navigation/native'
+
+import data from '../fichier_json/sortie_8-7-2023.json';
 
 const PresenceScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { activite, date } = route.params;
+
+  const [modifiedData, setModifiedData] = useState(data);
+
+  // Lire les composantes transférées
+  console.log(activite, date);
+
+  const handleToggle = (index) => {
+    setModifiedData((prevData) => {
+      const newData = [...prevData];
+      newData[index].Présence = !newData[index].Présence;
+      return newData;
+    });
+  };
 
   const handleSave = () => {
-    
+    const jsonData = JSON.stringify(modifiedData);
+    console.log(jsonData); // Affiche les données JSON dans la console à titre d'exemple
+    navigation.navigate("Menu")
   };
-  const handleModify = () => {
-    
-  }
 
   return (
     <View style={styles.container}>
@@ -22,8 +39,8 @@ const PresenceScreen = () => {
             <Text style={styles.label}>Présence</Text>
           </View>
         </View>
-        {data.map((person, index) => (
-          <PersonListItem key={index} person={person} index={index}/>
+        {modifiedData.map((person, index) => (
+          <PersonListItem key={index} person={person} index={index} handleToggle={handleToggle}/>
         ))}
       </ScrollView>
       <View style={styles.legendeContainer}>
@@ -35,17 +52,9 @@ const PresenceScreen = () => {
   );
 };
 
-const PersonListItem = ({ index, person }) => {
+const PersonListItem = ({ index, person, handleToggle}) => {
   const [toggleStates, setToggleStates] = useState(Array(person.length).fill(false));
 
-  const handleToggle = (index) => {
-    setToggleStates((prevToggleStates) => {
-      const newToggleStates = [...prevToggleStates];
-      newToggleStates[index] = !newToggleStates[index];
-      return newToggleStates;
-    });
-  };
-  
   return (
     <View style={styles.personContainer}>
           <View style={styles.column}>
@@ -55,7 +64,7 @@ const PersonListItem = ({ index, person }) => {
 
           <View style={styles.column}>
           <Switch
-                  value={toggleStates[index]}
+                  value={person.Présence}
                   onValueChange={() => handleToggle(index)}
                   style={styles.toggleSwitch}
                 />
