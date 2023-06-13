@@ -5,12 +5,14 @@ import { useNavigation } from '@react-navigation/native'
 const MenuScreen = () => {
   const navigation = useNavigation()
 
+  // Fonction de gestion de l'appui sur le bouton "Présence"
   const handlePresencePress = () => {
-    navigation.navigate("PresenceActiviteDate")
+    navigation.navigate("PresenceActiviteDate") // Navigue vers l'écran "PresenceActiviteDate"
   }
 
+  // Fonction de gestion de l'appui sur le bouton "Cotisation"
   const handleCotisationPress = () => {
-    navigation.navigate("SemestreCotisation")
+    navigation.navigate("SemestreCotisation") // Navigue vers l'écran "SemestreCotisation"
   }
 
   return (
@@ -19,7 +21,7 @@ const MenuScreen = () => {
     >
       <View style={styles.buttonContainer}>
           <TouchableOpacity
-          onPress={handlePresencePress}
+          onPress={handlePresencePress} // Gestionnaire d'appui pour le bouton "Présence"
           style={styles.button}
           >
               <Text style={styles.buttonText}>Présence</Text>
@@ -28,7 +30,7 @@ const MenuScreen = () => {
       
       <View style={styles.buttonContainer}>
           <TouchableOpacity
-          onPress={handleCotisationPress}
+          onPress={handleCotisationPress} // Gestionnaire d'appui pour le bouton "Cotisation"
           style={styles.button}
           >
               <Text style={styles.buttonText}>Cotisation</Text>

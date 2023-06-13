@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import data from '../fichier_json/réunion mensuelle_10-09-2023.json'
-import { useNavigation, useRoute } from '@react-navigation/native'
+import data from '../fichier_json/réunion mensuelle_10-09-2023.json';  // Importer les données JSON depuis un fichier local
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 
 const CotisationScreen = () => {
-  const [editable, setEditable] = useState(false);
-  const [cotisations, setCotisations] = useState([...data]);
+  const [editable, setEditable] = useState(false); // État pour indiquer si le formulaire est éditable ou non
+  const [cotisations, setCotisations] = useState([...data]); // État pour stocker les cotisations (initialisées avec les données JSON)
 
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const route = useRoute();
-  const { annee, semestre } = route.params;
+  const { annee, semestre } = route.params; // Récupérer les paramètres de la route
 
   // Lire les composantes transférées
   console.log(annee, semestre);
 
   const handleSave = () => {
-    const jsonData = JSON.stringify(data);
-    console.log(jsonData); // Affiche les données JSON dans la console à titre d'exemple
-    navigation.navigate("Menu");
+    const jsonData = JSON.stringify(data); // Convertir les données en JSON
+    console.log(jsonData); // Afficher les données JSON dans la console à titre d'exemple
+    navigation.navigate("Menu"); // Naviguer vers l'écran "Menu"
   };
 
   const handleModify = () => {
-    setEditable(prevEditable => !prevEditable);
-  }
+    setEditable(prevEditable => !prevEditable); // Inverser l'état d'édition du formulaire
+  };
 
   const handleCotisationChange = (index, text) => {
-      setCotisations(prevCotisations => {
+    setCotisations(prevCotisations => {
       const updatedCotisations = [...prevCotisations];
-      updatedCotisations[index].Montant_cotisation = parseInt(text);
+      updatedCotisations[index].Montant_cotisation = parseInt(text); // Mettre à jour le montant de la cotisation pour un index donné
       return updatedCotisations;
     });
   };
@@ -68,15 +68,15 @@ const CotisationScreen = () => {
 };
 
 const PersonListItem = ({ person, index, editable, handleCotisationChange }) => {
-  const [cotisation, setCotisation] = useState(person.Montant_cotisation.toString());
+  const [cotisation, setCotisation] = useState(person.Montant_cotisation.toString()); // État pour stocker le montant de la cotisation
 
   useEffect(() => {
-    setCotisation(person.Montant_cotisation.toString());
+    setCotisation(person.Montant_cotisation.toString()); // Mettre à jour le montant de la cotisation lorsque les données changent
   }, [person.Montant_cotisation]);
 
   const handleInputChange = (text) => {
-    setCotisation(text);
-    handleCotisationChange(index, text);
+    setCotisation(text); // Mettre à jour le montant de la cotisation dans l'état local
+    handleCotisationChange(index, text); // Appeler la fonction parent pour mettre à jour le montant de la cotisation dans l'état global
   };
 
   return (

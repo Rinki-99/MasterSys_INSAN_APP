@@ -10,20 +10,18 @@ import CotisationScreen from './Screens/CotisationScreen';
 import SemestreCotisationScreen from './Screens/SemestreCotisationScreen';
 import PresenceActiviteDateScreen from './Screens/PresenceActiviteDateScreen';
 
-
-const Stack = createNativeStackNavigator();
-
+const Stack = createNativeStackNavigator(); // Crée une pile de navigation native
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
-        <Stack.Screen name="Menu" component={MenuScreen} />
-        <Stack.Screen name="Presence" component={PresenceScreen} />
-        <Stack.Screen name="Cotisation" component={CotisationScreen} />
-        <Stack.Screen name="SemestreCotisation" component={SemestreCotisationScreen} />
-        <Stack.Screen name="PresenceActiviteDate" component={PresenceActiviteDateScreen} />
+    <NavigationContainer> {/* Conteneur de navigation pour gérer la navigation dans l'application */} 
+      <Stack.Navigator>   {/* Navigateur de pile pour gérer la navigation entre les écrans */}
+        <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} /> {/* Écran "Login" sans en-tête */}
+        <Stack.Screen name="Menu" component={MenuScreen} />  {/* Écran "Menu" */ }
+        <Stack.Screen name="Presence" component={PresenceScreen} /> // {/* Écran "Presence" */ }
+        <Stack.Screen name="Cotisation" component={CotisationScreen} /> // {/* Écran "Cotisation" */ }
+        <Stack.Screen name="SemestreCotisation" component={SemestreCotisationScreen} /> // {/* Écran "SemestreCotisation" */ }
+        <Stack.Screen name="PresenceActiviteDate" component={PresenceActiviteDateScreen} /> // {/* Écran "PresenceActiviteDate" */ }
       </Stack.Navigator>
     </NavigationContainer>
   );

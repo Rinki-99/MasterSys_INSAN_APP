@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { auth } from '../firebase'
+import { auth } from '../firebase' // Importation du module Firebase
 import { useNavigation } from '@react-navigation/native'
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('') // État pour l'adresse e-mail
+  const [password, setPassword] = useState('') // État pour le mot de passe
 
   const navigation = useNavigation()
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if(user){
-        navigation.navigate("Menu")
+        navigation.navigate("Menu") // Navigue vers l'écran "Menu" si l'utilisateur est connecté
       }
     })
 
@@ -21,12 +21,12 @@ const LoginScreen = () => {
 
   const handleLogin = () => {
     auth
-      .signInWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email, password) // Connexion avec l'adresse e-mail et le mot de passe fournis
       .then(userCredentials => {
         const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
+        console.log('Logged in with:', user.email); // Affiche l'e-mail de l'utilisateur connecté dans la console
       })
-      .catch(error => alert(error.message))
+      .catch(error => alert(error.message)) // Affiche une alerte en cas d'erreur lors de la connexion
   }
 
   return (

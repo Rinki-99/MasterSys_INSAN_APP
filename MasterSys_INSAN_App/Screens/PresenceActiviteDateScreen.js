@@ -6,30 +6,30 @@ import { useNavigation } from '@react-navigation/native'
 
 const PresenceActiviteDateScreen = () => {
   const navigation = useNavigation()
-  const [selected, setSelected] = React.useState("");
-  const [dateActivite, setDateActivite] = useState("");
+  const [selected, setSelected] = React.useState(""); // État pour stocker la valeur de l'activité sélectionnée
+  const [dateActivite, setDateActivite] = useState(""); // État pour stocker la date de l'activité
 
-  const [date, setDate] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
+  const [date, setDate] = useState(new Date()); // État pour stocker la date sélectionnée dans le sélecteur de date
+  const [showPicker, setShowPicker] = useState(false); // État pour contrôler l'affichage du sélecteur de date
 
-  const [isActivityValid, setActivityValid] = useState(false);
-  const [isDateValid, setDateValid] = useState(false);
+  const [isActivityValid, setActivityValid] = useState(false); // État pour indiquer si une activité valide est sélectionnée
+  const [isDateValid, setDateValid] = useState(false); // État pour indiquer si une date valide est sélectionnée
 
 
   const handleSuivantPress = () => {
     if (isActivityValid && isDateValid) {
-      navigation.navigate("Presence", { activite: selected, date: dateActivite });
+      navigation.navigate("Presence", { activite: selected, date: dateActivite }); // Naviguer vers l'écran "Presence" avec les données sélectionnées
     }
   }
 
   const handleActivitySelect = (selectedValue) => {
-    setSelected(selectedValue);
-    setActivityValid(!!selectedValue); // Met à jour l'état de validité de l'activité en vérifiant si une valeur est sélectionnée
+    setSelected(selectedValue); // Mettre à jour l'activité sélectionnée
+    setActivityValid(!!selectedValue); // Mettre à jour l'état de validité de l'activité en vérifiant si une valeur est sélectionnée
   };
 
   const toggleDatepicker = () => {
-    setShowPicker(!showPicker);
-    setDateValid(false);
+    setShowPicker(!showPicker); // Inverser l'état d'affichage du sélecteur de date
+    setDateValid(false); // Réinitialiser l'état de validité de la date
   };
 
   const formatDateToString = (rawDate) => {
@@ -39,29 +39,29 @@ const PresenceActiviteDateScreen = () => {
     let month = date.getMonth() + 1;
     let day = date.getDate();
 
-    return `${day}-${month}-${year}`;
+    return `${day}-${month}-${year}`; // Formater la date en format jour-mois-année
   }
 
   const onChange = ({ type }, selectedDate) => {
     if(type == "set"){
       const currentDate = selectedDate;
-      setDateActivite(currentDate);
-      setDateValid(true); // Met à jour l'état de validité de la date lorsque la date est sélectionnée
+      setDateActivite(currentDate); // Mettre à jour la date de l'activité
+      setDateValid(true); // Mettre à jour l'état de validité de la date lorsque la date est sélectionnée
 
       if(Platform.OS === "android"){
-        toggleDatepicker();
-        setDateActivite(formatDateToString(currentDate));
+        toggleDatepicker(); // Cacher le sélecteur de date
+        setDateActivite(formatDateToString(currentDate)); // Formater la date et la stocker dans l'état
       }
 
     } else {
-      toggleDatepicker();
+      toggleDatepicker(); // Cacher le sélecteur de date
     }
   };
 
   const confirmIOSDate = () => {
-    setDateActivite(formatDateToString(dateActivite));
-    toggleDatepicker();
-    setDateValid(true); // Met à jour l'état de validité de la date quand on clique sur le bouton confirmer
+    setDateActivite(formatDateToString(dateActivite)); // Formater la date de l'activité
+    toggleDatepicker(); // Cacher le sélecteur de date
+    setDateValid(true); // Mettre à jour l'état de validité de la date quand on clique sur le bouton confirmer
   }
   
   const data = [

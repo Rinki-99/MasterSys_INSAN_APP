@@ -4,13 +4,14 @@ import { useNavigation } from '@react-navigation/native'
 
 
 const SemestreCotisationScreen = () => {
-  const [annee, setAnnee] = useState('')
-  const [semestre, setSemestre] = useState('')
+  const [annee, setAnnee] = useState('') // État pour l'année
+  const [semestre, setSemestre] = useState('') // État pour le semestre
 
   const navigation = useNavigation()
 
   const handleSuivantPress = () => {
     if (validateFields()) {
+      // Navigue vers l'écran "Cotisation" avec les valeurs de l'année et du semestre
       navigation.navigate("Cotisation", { annee: annee, semestre: semestre });
     }
   }
@@ -56,6 +57,7 @@ const SemestreCotisationScreen = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={handleSuivantPress}
+          // définir la propriété opacity du style en fonction de la valeur de la fonction validateFields()
           style={[styles.button, {opacity: validateFields() ? 1 : 0.5,}]}
           >
             <Text style={styles.buttonText}>Suivant</Text>
