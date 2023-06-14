@@ -1,0 +1,51 @@
+[
+    {
+      "Nom": "Clark",
+      "Prénom": "Liam",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "Lewis",
+      "Prénom": "Ava",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "Hall",
+      "Prénom": "Mia",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "Green",
+      "Prénom": "Lucas",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "Turner",
+      "Prénom": "Charlotte",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "Baker",
+      "Prénom": "Benjamin",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "Garcia",
+      "Prénom": "Henry",
+      "Montant_cotisation": 50,
+      "Présence": false
+    },
+    {
+      "Nom": "White",
+      "Prénom": "Luna",
+      "Montant_cotisation": 50,
+      "Présence": false
+    }
+  ]
+  

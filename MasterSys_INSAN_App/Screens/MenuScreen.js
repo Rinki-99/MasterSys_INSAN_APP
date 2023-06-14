@@ -1,14 +1,27 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import { useNavigation } from '@react-navigation/native'
 
 const MenuScreen = () => {
+  const navigation = useNavigation()
+
+  // Fonction de gestion de l'appui sur le bouton "Présence"
+  const handlePresencePress = () => {
+    navigation.navigate("PresenceActiviteDate") // Navigue vers l'écran "PresenceActiviteDate"
+  }
+
+  // Fonction de gestion de l'appui sur le bouton "Cotisation"
+  const handleCotisationPress = () => {
+    navigation.navigate("SemestreCotisation") // Navigue vers l'écran "SemestreCotisation"
+  }
+
   return (
     <View
         style={styles.container}
     >
       <View style={styles.buttonContainer}>
           <TouchableOpacity
-          onPress={() => {}}
+          onPress={handlePresencePress} // Gestionnaire d'appui pour le bouton "Présence"
           style={styles.button}
           >
               <Text style={styles.buttonText}>Présence</Text>
@@ -17,7 +30,7 @@ const MenuScreen = () => {
       
       <View style={styles.buttonContainer}>
           <TouchableOpacity
-          onPress={() => {}}
+          onPress={handleCotisationPress} // Gestionnaire d'appui pour le bouton "Cotisation"
           style={styles.button}
           >
               <Text style={styles.buttonText}>Cotisation</Text>
