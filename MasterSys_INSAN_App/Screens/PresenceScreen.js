@@ -1,31 +1,71 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Switch } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native'
-
-import data from '../fichier_json/sortie_8-7-2023.json';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const PresenceScreen = () => {
+  const [membres, setMembres] = useState([]);
+  const [toggleStates, setToggleStates] = useState([]);
+  const [presence, setPresence] = useState([]);
+  
   const navigation = useNavigation();
   const route = useRoute();
-  const { activite, date } = route.params;
+  const { activite, date, id_activite } = route.params;
 
-  const [modifiedData, setModifiedData] = useState(data);
-
-  // Lire les composantes transférées
-  console.log(activite, date);
+  useEffect(() => {
+    fetch('http://192.168.1.71:8080/api/v1/membre')
+      .then(response => response.json())
+      .then(data => {
+        setMembres(data);
+        setToggleStates(Array(data.length).fill(false));
+        setPresence(Array(data.length).fill(0));
+      })
+      .catch(error => {
+        console.error('Une erreur s\'est produite lors de la récupération des données :', error);
+      });
+  }, []);
 
   const handleToggle = (index) => {
-    setModifiedData((prevData) => {
-      const newData = [...prevData];
-      newData[index].Présence = !newData[index].Présence;
-      return newData;
+    setToggleStates((prevToggleStates) => {
+      const newToggleStates = [...prevToggleStates];
+      newToggleStates[index] = !newToggleStates[index];
+      return newToggleStates;
+    });
+
+    setPresence((prevPresence) => {
+      const newPresence = [...prevPresence];
+      newPresence[index] = prevPresence[index] === 0 ? 1 : 0;
+      return newPresence;
     });
   };
 
   const handleSave = () => {
-    const jsonData = JSON.stringify(modifiedData);
-    console.log(jsonData); // Affiche les données JSON dans la console à titre d'exemple
-    navigation.navigate("Menu")
+    membres.forEach((person, index) => {
+      const requestData = {
+        Activite: id_activite,
+        Membre: person.ID_Membre,
+        date_activite: date,
+        present: presence[index]
+      };
+
+      console.log(requestData);
+
+      const jsonData = JSON.stringify(requestData);
+
+      fetch('http://192.168.1.71:8080/api/v1/presence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: jsonData
+      })
+        .then(response => response.json())
+        .then(data => {
+          navigation.navigate('Menu');
+        })
+        .catch(error => {
+          console.error('Une erreur s\'est produite lors de la sauvegarde des données :', error);
+        });
+    });
   };
 
   return (
@@ -33,14 +73,32 @@ const PresenceScreen = () => {
       <ScrollView>
         <View style={styles.legendeContainer}>
           <View style={styles.column}>
-            <Text style={styles.label}>Nom</Text>
+            <Text style={styles.label}>Activité : </Text>
+            <Text style={styles.label}>{activite}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.label}>Date : </Text>
+            <Text style={styles.label}>{date}</Text>
+          </View>
+        </View>
+        <View style={styles.legendeContainer}>
+          <View style={styles.column}>
+            <Text style={[styles.label, {textAlign: "left", marginLeft:6 }]}>Nom</Text>
           </View>
           <View style={styles.column}>
             <Text style={styles.label}>Présence</Text>
           </View>
         </View>
-        {modifiedData.map((person, index) => (
-          <PersonListItem key={index} person={person} index={index} handleToggle={handleToggle}/>
+        {membres.map((person, index) => (
+          <PersonListItem
+            key={index}
+            person={person}
+            index={index}
+            activite={activite}
+            date={date}
+            toggleState={toggleStates[index]}
+            handleToggle={handleToggle}
+          />
         ))}
       </ScrollView>
       <View style={styles.legendeContainer}>
@@ -52,23 +110,21 @@ const PresenceScreen = () => {
   );
 };
 
-const PersonListItem = ({ index, person, handleToggle}) => {
-  const [toggleStates, setToggleStates] = useState(Array(person.length).fill(false));
-
+const PersonListItem = ({ index, person, toggleState, handleToggle, activite, date }) => {
   return (
     <View style={styles.personContainer}>
-          <View style={styles.column}>
-            <Text style={styles.surname}>{person.Nom}</Text>
-            <Text style={styles.name}>{person.Prénom}</Text>
-          </View>
+      <View style={styles.column}>
+        <Text style={styles.surname}>{person.Nom}</Text>
+        <Text style={styles.name}>{person.Prenom}</Text>
+      </View>
 
-          <View style={styles.column}>
-          <Switch
-                  value={person.Présence}
-                  onValueChange={() => handleToggle(index)}
-                  style={styles.toggleSwitch}
-                />
-          </View>
+      <View style={styles.column}>
+        <Switch
+          value={toggleState}
+          onValueChange={() => handleToggle(index)}
+          style={styles.toggleSwitch}
+        />
+      </View>
     </View>
   );
 };
@@ -109,16 +165,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center'
-  },
-  input: {
-    height: 45,
-    width: "70%",
-    marginLeft: "20%",
-    borderColor: '#6750A4',
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingHorizontal: 8,
-    fontSize: 18,
   },
   button: {
     backgroundColor: '#6750A4',

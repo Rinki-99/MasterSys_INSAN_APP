@@ -1,34 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import data from '../fichier_json/réunion mensuelle_10-09-2023.json';  // Importer les données JSON depuis un fichier local
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-
 const CotisationScreen = () => {
-  const [editable, setEditable] = useState(false); // État pour indiquer si le formulaire est éditable ou non
-  const [cotisations, setCotisations] = useState([...data]); // État pour stocker les cotisations (initialisées avec les données JSON)
+  const [editable, setEditable] = useState(false);
+  const [cotisations, setCotisations] = useState([]);
+  const [valeurscotises, setValeurscotises] = useState([]);
 
   const navigation = useNavigation();
   const route = useRoute();
-  const { annee, semestre } = route.params; // Récupérer les paramètres de la route
+  const { annee, semestre } = route.params;
 
-  // Lire les composantes transférées
-  console.log(annee, semestre);
+  useEffect(() => {
+    fetch('http://192.168.1.71:8080/api/v1/membre')
+      .then(response => response.json())
+      .then(data => {
+        setCotisations(data);
+      })
+      .catch(error => {
+        console.error('Une erreur s\'est produite lors de la récupération des données :', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch('http://192.168.1.71:8080/api/v1/cotisation')
+      .then(response => response.json())
+      .then(data => {
+        setValeurscotises(data);
+      })
+      .catch(error => {
+        console.error('Une erreur s\'est produite lors de la récupération des données :', error);
+      });
+  }, []);
+
+  console.log(valeurscotises);
+  console.log(annee,semestre);
 
   const handleSave = () => {
-    const jsonData = JSON.stringify(data); // Convertir les données en JSON
-    console.log(jsonData); // Afficher les données JSON dans la console à titre d'exemple
-    navigation.navigate("Menu"); // Naviguer vers l'écran "Menu"
+    cotisations.forEach((person, index) => {
+        const requestData = {
+          Montant_cotise: person.montant_cotisation,
+          Trimestre: semestre,
+          Annee: annee,
+          Membre: person.ID_Membre
+        };
+
+        const jsonData = JSON.stringify(requestData);
+
+        fetch('http://192.168.1.71:8080/api/v1/cotisation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: jsonData
+        })
+          .then(response => response.json())
+          .then(data => {
+            navigation.navigate('Menu');
+          })
+          .catch(error => {
+            console.error('Une erreur s\'est produite lors de la sauvegarde des données :', error);
+          });
+      }
+    );
   };
 
   const handleModify = () => {
-    setEditable(prevEditable => !prevEditable); // Inverser l'état d'édition du formulaire
+    setEditable(prevEditable => !prevEditable);
   };
 
-  const handleCotisationChange = (index, text) => {
+  const handleCotisationChange = (index, montant) => {
     setCotisations(prevCotisations => {
       const updatedCotisations = [...prevCotisations];
-      updatedCotisations[index].Montant_cotisation = parseInt(text); // Mettre à jour le montant de la cotisation pour un index donné
+      updatedCotisations[index] = {
+        ...updatedCotisations[index],
+        montant_cotisation: parseInt(montant)
+      };
       return updatedCotisations;
     });
   };
@@ -38,17 +85,31 @@ const CotisationScreen = () => {
       <ScrollView>
         <View style={styles.legendeContainer}>
           <View style={styles.column}>
-            <Text style={styles.label}>Nom</Text>
+            <Text style={styles.label}>Annee : {annee}</Text>
           </View>
           <View style={styles.column}>
-            <Text style={styles.label}>Montant</Text>
+            <Text style={styles.label}>Semestre : {semestre}</Text>
           </View>
         </View>
-        {data.map((person, index) => (
+        <View style={styles.legendeContainer}>
+          <View style={styles.column}>
+            <Text style={[styles.label, {textAlign: "left", marginLeft:6 }]}>Nom</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.label}>Montant cotisation</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.label}>Montant cotisé</Text>
+          </View>
+        </View>
+        {cotisations.map((person, index) => (
           <PersonListItem 
             key={index}  
             index={index} 
-            person={person} 
+            person={person}
+            valeurscotises={valeurscotises} 
+            annee={annee}
+            semestre={semestre}
             editable={editable} 
             handleCotisationChange={handleCotisationChange}
           />
@@ -62,28 +123,43 @@ const CotisationScreen = () => {
         <TouchableOpacity style={[styles.button, styles.column]} onPress={handleModify}>
           <Text style={styles.buttonText}>Modifier</Text>
         </TouchableOpacity>
-        </View>
+      </View>
     </View>
   );
 };
 
-const PersonListItem = ({ person, index, editable, handleCotisationChange }) => {
-  const [cotisation, setCotisation] = useState(person.Montant_cotisation.toString()); // État pour stocker le montant de la cotisation
+const PersonListItem = ({ person, index, editable, valeurscotises, annee, semestre, handleCotisationChange }) => {
+  const [cotisation, setCotisation] = useState();
+  const montantCotisation = useMemo(() => person.montant_cotisation, []); // Utilisez useMemo pour créer une version memoized de la constante
 
   useEffect(() => {
-    setCotisation(person.Montant_cotisation.toString()); // Mettre à jour le montant de la cotisation lorsque les données changent
-  }, [person.Montant_cotisation]);
+    const memberCotisation = valeurscotises.find(
+      (cotisation) => cotisation.Membre === person.ID_Membre &&
+      cotisation.Annee === parseInt(annee) &&
+      cotisation.Trimestre === parseInt(semestre)
+    );
+
+    if (memberCotisation) {
+      setCotisation(memberCotisation.Montant_cotise.toString());
+    } else {
+      setCotisation(person.montant_cotisation);
+    }
+  }, [person.ID_Membre, valeurscotises]);
 
   const handleInputChange = (text) => {
-    setCotisation(text); // Mettre à jour le montant de la cotisation dans l'état local
-    handleCotisationChange(index, text); // Appeler la fonction parent pour mettre à jour le montant de la cotisation dans l'état global
+    setCotisation(text);
+    handleCotisationChange(index, text);
   };
 
   return (
     <View style={styles.personContainer}>
       <View style={styles.column}>
         <Text style={styles.surname}>{person.Nom}</Text>
-        <Text style={styles.name}>{person.Prénom}</Text>
+        <Text style={styles.name}>{person.Prenom}</Text>
+      </View>
+
+      <View style={styles.column}>
+        <Text style={styles.cotisationstyle}>{montantCotisation}€</Text>
       </View>
 
       <View style={styles.column}>
@@ -121,7 +197,8 @@ const styles = StyleSheet.create({
   },
   column: {
     flex: 1,
-    marginLeft: 10,
+    margin: 5,
+
   },
   name: {
     fontSize: 18,
@@ -158,6 +235,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '700',
     fontSize: 16,
+  },
+  cotisationstyle: {
+    fontSize: 16,
+    padding: 15,
+    fontWeight: 'normal',
+    textAlign: 'center'
   },
 });
 

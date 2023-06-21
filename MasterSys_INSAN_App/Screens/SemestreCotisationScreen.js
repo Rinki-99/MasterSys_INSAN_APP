@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 
 
 const SemestreCotisationScreen = () => {
-  const [annee, setAnnee] = useState('') // État pour l'année
+  const [annee, setAnnee] = useState('2023') // État pour l'année
   const [semestre, setSemestre] = useState('') // État pour le semestre
 
   const navigation = useNavigation()

@@ -1,8 +1,13 @@
 {
+  "name": "MasterSys_INSAN_App",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "react-scripts start"
+  },
   "expo": {
-    "name": "MasterSys_INSAN_App",
-    "slug": "MasterSys_INSAN_App",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -28,3 +33,4 @@
     }
   }
 }
+

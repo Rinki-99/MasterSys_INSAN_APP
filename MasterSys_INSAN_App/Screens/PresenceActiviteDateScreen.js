@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, TextInput, Pressable, Platform, TouchableOpacity } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { useNavigation } from '@react-navigation/native'
 
 const PresenceActiviteDateScreen = () => {
+  const [data, setData] = useState([]);
+
   const navigation = useNavigation()
   const [selected, setSelected] = React.useState(""); // État pour stocker la valeur de l'activité sélectionnée
   const [dateActivite, setDateActivite] = useState(""); // État pour stocker la date de l'activité
+  const [idActivite, setIdActivite] = useState("")
 
   const [date, setDate] = useState(new Date()); // État pour stocker la date sélectionnée dans le sélecteur de date
   const [showPicker, setShowPicker] = useState(false); // État pour contrôler l'affichage du sélecteur de date
@@ -15,18 +18,37 @@ const PresenceActiviteDateScreen = () => {
   const [isActivityValid, setActivityValid] = useState(false); // État pour indiquer si une activité valide est sélectionnée
   const [isDateValid, setDateValid] = useState(false); // État pour indiquer si une date valide est sélectionnée
 
+  useEffect(() => {
+    fetch('http://192.168.1.71:8080/api/v1/activite')
+      .then(response => response.json())
+      .then(data => {
+        setData(data);
+      })
+      .catch(error => {
+        console.error('Une erreur s\'est produite lors de la récupération des données :', error);
+      });
+  }, []);
 
   const handleSuivantPress = () => {
     if (isActivityValid && isDateValid) {
-      navigation.navigate("Presence", { activite: selected, date: dateActivite }); // Naviguer vers l'écran "Presence" avec les données sélectionnées
+      navigation.navigate("Presence", { activite: selected, date: dateActivite, id_activite: idActivite}); // Naviguer vers l'écran "Presence" avec les données sélectionnées
     }
   }
 
   const handleActivitySelect = (selectedValue) => {
-    setSelected(selectedValue); // Mettre à jour l'activité sélectionnée
-    setActivityValid(!!selectedValue); // Mettre à jour l'état de validité de l'activité en vérifiant si une valeur est sélectionnée
+    setSelected(selectedValue); // Update the selected activity name
+    setActivityValid(!!selectedValue); // Update the activity validity state by checking if a value is selected
+  
+    // Find the selected activity object
+    const selectedActivity = data.find((item) => item.Nom === selectedValue);
+  
+    if (selectedActivity) {
+      setIdActivite(selectedActivity.ID_Activite);
+      // Use the ID_activité as needed
+      console.log('ID_activité:', idActivite);
+    }
   };
-
+  
   const toggleDatepicker = () => {
     setShowPicker(!showPicker); // Inverser l'état d'affichage du sélecteur de date
     setDateValid(false); // Réinitialiser l'état de validité de la date
@@ -39,7 +61,7 @@ const PresenceActiviteDateScreen = () => {
     let month = date.getMonth() + 1;
     let day = date.getDate();
 
-    return `${day}-${month}-${year}`; // Formater la date en format jour-mois-année
+    return `${year}-${month}-${day}`; // Formater la date en format jour-mois-année
   }
 
   const onChange = ({ type }, selectedDate) => {
@@ -64,13 +86,6 @@ const PresenceActiviteDateScreen = () => {
     setDateValid(true); // Mettre à jour l'état de validité de la date quand on clique sur le bouton confirmer
   }
   
-  const data = [
-      { label: 'Sortie', value: 'sortie' },
-      { label: 'Réunion hebdo', value: 'réunion hebdo' },
-      { label: 'Réunion mensuelle', value: 'réunion mensuelle' },
-      { label: 'Conférence', value: 'conférence' },
-    ];
-  
     return (
       <KeyboardAvoidingView
       style={styles.container}
@@ -82,7 +97,7 @@ const PresenceActiviteDateScreen = () => {
           <Text style={styles.label}>Activité</Text>
           <SelectList 
             setSelected={handleActivitySelect}
-            data={data} 
+            data={data.map(item => item.Nom)} 
             save="value"
           />
         </View>
