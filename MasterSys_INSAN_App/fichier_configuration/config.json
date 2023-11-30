@@ -1,0 +1,8 @@
+{
+    "apiUrl": "https://insanapi-ba4ea8ec6e78.herokuapp.com",
+    "membre": "/api/v1/membre",
+    "cotisation": "/api/v1/cotisation",
+    "presence": "/api/v1/presence",
+    "activite": "/api/v1/activite"
+
+}

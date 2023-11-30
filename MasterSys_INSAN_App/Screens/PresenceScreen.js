@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import config from '../fichier_configuration/config.json';
 
 const PresenceScreen = () => {
   const [membres, setMembres] = useState([]);
@@ -12,7 +13,7 @@ const PresenceScreen = () => {
   const { activite, date, id_activite } = route.params;
 
   useEffect(() => {
-    fetch('http://192.168.1.71:8080/api/v1/membre')
+    fetch(`${config.apiUrl}${config.membre}`)
       .then(response => response.json())
       .then(data => {
         setMembres(data);
@@ -51,7 +52,7 @@ const PresenceScreen = () => {
 
       const jsonData = JSON.stringify(requestData);
 
-      fetch('http://192.168.1.71:8080/api/v1/presence', {
+      fetch(`${config.apiUrl}${config.presence}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

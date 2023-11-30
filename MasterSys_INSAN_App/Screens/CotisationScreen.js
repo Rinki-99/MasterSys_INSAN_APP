@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import config from '../fichier_configuration/config.json';
 
 const CotisationScreen = () => {
   const [editable, setEditable] = useState(false);
@@ -12,7 +13,7 @@ const CotisationScreen = () => {
   const { annee, semestre } = route.params;
 
   useEffect(() => {
-    fetch('http://192.168.1.71:8080/api/v1/membre')
+    fetch(`${config.apiUrl}${config.membre}`)
       .then(response => response.json())
       .then(data => {
         setCotisations(data);
@@ -23,7 +24,7 @@ const CotisationScreen = () => {
   }, []);
 
   useEffect(() => {
-    fetch('http://192.168.1.71:8080/api/v1/cotisation')
+    fetch(`${config.apiUrl}${config.cotisation}`)
       .then(response => response.json())
       .then(data => {
         setValeurscotises(data);
@@ -47,7 +48,7 @@ const CotisationScreen = () => {
 
         const jsonData = JSON.stringify(requestData);
 
-        fetch('http://192.168.1.71:8080/api/v1/cotisation', {
+        fetch(`${config.apiUrl}${config.cotisation}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

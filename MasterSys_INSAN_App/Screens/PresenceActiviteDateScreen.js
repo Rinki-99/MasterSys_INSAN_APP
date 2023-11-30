@@ -1,162 +1,150 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, TextInput, Pressable, Platform, TouchableOpacity } from 'react-native';
-import { SelectList } from 'react-native-dropdown-select-list'
-import DateTimePicker from "@react-native-community/datetimepicker"
-import { useNavigation } from '@react-navigation/native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  TextInput,
+  Pressable,
+  Platform,
+  TouchableOpacity,
+} from 'react-native';
+import { SelectList } from 'react-native-dropdown-select-list';
+import { useNavigation } from '@react-navigation/native';
+import config from '../fichier_configuration/config.json';
+import DatePicker from 'react-datepicker';
+
+// Importez le DateTimePicker seulement sur les plates-formes mobiles
+let DateTimePicker;
+if (Platform.OS === 'android' || Platform.OS === 'ios') {
+  DateTimePicker = require('@react-native-community/datetimepicker').default;
+}
+else {
+  require('react-datepicker/dist/react-datepicker.css');
+}
 
 const PresenceActiviteDateScreen = () => {
   const [data, setData] = useState([]);
 
-  const navigation = useNavigation()
-  const [selected, setSelected] = React.useState(""); // État pour stocker la valeur de l'activité sélectionnée
-  const [dateActivite, setDateActivite] = useState(""); // État pour stocker la date de l'activité
-  const [idActivite, setIdActivite] = useState("")
+  const navigation = useNavigation();
+  const [selected, setSelected] = React.useState('');
+  const [dateActivite, setDateActivite] = useState('');
+  const [idActivite, setIdActivite] = useState('');
 
-  const [date, setDate] = useState(new Date()); // État pour stocker la date sélectionnée dans le sélecteur de date
-  const [showPicker, setShowPicker] = useState(false); // État pour contrôler l'affichage du sélecteur de date
-
-  const [isActivityValid, setActivityValid] = useState(false); // État pour indiquer si une activité valide est sélectionnée
-  const [isDateValid, setDateValid] = useState(false); // État pour indiquer si une date valide est sélectionnée
+  const [date, setDate] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const [isActivityValid, setActivityValid] = useState(false);
+  const [isDateValid, setDateValid] = useState(false);
 
   useEffect(() => {
-    fetch('http://192.168.1.71:8080/api/v1/activite')
-      .then(response => response.json())
-      .then(data => {
+    fetch(`${config.apiUrl}${config.activite}`)
+      .then((response) => response.json())
+      .then((data) => {
         setData(data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Une erreur s\'est produite lors de la récupération des données :', error);
       });
   }, []);
 
   const handleSuivantPress = () => {
     if (isActivityValid && isDateValid) {
-      navigation.navigate("Presence", { activite: selected, date: dateActivite, id_activite: idActivite}); // Naviguer vers l'écran "Presence" avec les données sélectionnées
-    }
-  }
-
-  const handleActivitySelect = (selectedValue) => {
-    setSelected(selectedValue); // Update the selected activity name
-    setActivityValid(!!selectedValue); // Update the activity validity state by checking if a value is selected
-  
-    // Find the selected activity object
-    const selectedActivity = data.find((item) => item.Nom === selectedValue);
-  
-    if (selectedActivity) {
-      setIdActivite(selectedActivity.ID_Activite);
-      // Use the ID_activité as needed
-      console.log('ID_activité:', idActivite);
+      navigation.navigate('Presence', { activite: selected, date: dateActivite, id_activite: idActivite });
     }
   };
-  
+
+  const handleActivitySelect = (selectedValue) => {
+    setSelected(selectedValue);
+    setActivityValid(!!selectedValue);
+
+    const selectedActivity = data.find((item) => item.Nom === selectedValue);
+
+    if (selectedActivity) {
+      setIdActivite(selectedActivity.ID_Activite);
+    }
+  };
+
   const toggleDatepicker = () => {
-    setShowPicker(!showPicker); // Inverser l'état d'affichage du sélecteur de date
-    setDateValid(false); // Réinitialiser l'état de validité de la date
+    setShowPicker(!showPicker);
+    setDateValid(false);
   };
 
   const formatDateToString = (rawDate) => {
     let date = new Date(rawDate);
-
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
+    return `${year}-${month}-${day}`;
+  };
 
-    return `${year}-${month}-${day}`; // Formater la date en format jour-mois-année
-  }
+  const onChange = (_, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setDateActivite(currentDate);
 
-  const onChange = ({ type }, selectedDate) => {
-    if(type == "set"){
-      const currentDate = selectedDate;
-      setDateActivite(currentDate); // Mettre à jour la date de l'activité
-      setDateValid(true); // Mettre à jour l'état de validité de la date lorsque la date est sélectionnée
-
-      if(Platform.OS === "android"){
-        toggleDatepicker(); // Cacher le sélecteur de date
-        setDateActivite(formatDateToString(currentDate)); // Formater la date et la stocker dans l'état
-      }
-
-    } else {
-      toggleDatepicker(); // Cacher le sélecteur de date
+    if (Platform.OS === 'android' || Platform.OS === 'web') {
+      toggleDatepicker();
+      setDateActivite(formatDateToString(currentDate));
     }
+    setDateValid(true);
   };
 
   const confirmIOSDate = () => {
-    setDateActivite(formatDateToString(dateActivite)); // Formater la date de l'activité
-    toggleDatepicker(); // Cacher le sélecteur de date
-    setDateValid(true); // Mettre à jour l'état de validité de la date quand on clique sur le bouton confirmer
-  }
-  
-    return (
-      <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding"
-      >
-        <View
-          style={styles.input}
-        >
-          <Text style={styles.label}>Activité</Text>
-          <SelectList 
-            setSelected={handleActivitySelect}
-            data={data.map(item => item.Nom)} 
-            save="value"
-          />
-        </View>
+    setDateActivite(formatDateToString(dateActivite));
+    toggleDatepicker();
+    setDateValid(true);
+  };
 
-        <View>
+  return (
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <View style={styles.input}>
+        <Text style={styles.label}>Activité</Text>
+        <SelectList setSelected={handleActivitySelect} data={data.map((item) => item.Nom)} save="value" />
+      </View>
 
-          {showPicker && ( 
-            <DateTimePicker
-              mode="date"
-              display="spinner"
-              value={date}
-              onChange={onChange}
-              style={styles.datePicker}
-              minimumDate={new Date()}
-            />
-          )}
-
-          {showPicker && Platform.OS === "ios" && 
-          (
-            <View
-              style={{ flexDirection: "row",
-              justifyContent: "space-around" }}
-            >
-              <TouchableOpacity style={[
+      <View>
+      {showPicker && (
+          <>
+            {Platform.OS === 'web' ? (
+              <DatePicker
+                 selected={date}
+                 onChange={(newDate) => {
+                    setDate(newDate);
+                    onChange({ type: 'set' }, newDate);
+                  }}
+                  minDate={new Date()} // la date minimale à laquelle l'utilisateur peut remonter
+              />
+            ) : (
+              <DateTimePicker
+                mode="date"
+                display="spinner"
+                value={date}
+                onChange={onChange}
+                style={styles.datePicker}
+                minimumDate={new Date()}
+              />
+            )}
+          </>
+        )}
+        {showPicker && Platform.OS === 'ios' && (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <TouchableOpacity
+              style={[
                 styles.button,
                 styles.pickerButton,
-                {backgroundColor : "#11182711",
-                borderColor : '#6750A4',
-                borderWidth: 1}
+                { backgroundColor: '#11182711', borderColor: '#6750A4', borderWidth: 1 },
               ]}
-                onPress={toggleDatepicker}
-                >
-                <Text
-                style={[
-                  styles.buttonText,
-                  { color: "#6750A4" }
-                ]}>Supprimer</Text>
-              </TouchableOpacity>
+              onPress={toggleDatepicker}>
+              <Text style={[styles.buttonText, { color: '#6750A4' }]}>Supprimer</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity style={[
-                styles.button,
-                styles.pickerButton,
-              ]}
-                onPress={confirmIOSDate}
-                >
-                <Text
-                style={[
-                  styles.buttonText,
-                  { color: "white" }
-                ]}>Confirmer</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, styles.pickerButton]} onPress={confirmIOSDate}>
+              <Text style={[styles.buttonText, { color: 'white' }]}>Confirmer</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-            </View>
-          )}
-
-          { !showPicker && (
-            <Pressable
-            onPress={toggleDatepicker}
-          >
+        {!showPicker && (
+          <Pressable onPress={toggleDatepicker}>
             <TextInput
               placeholder="Sélectionner date activité"
               value={dateActivite}
@@ -166,38 +154,37 @@ const PresenceActiviteDateScreen = () => {
               onPressIn={toggleDatepicker}
             />
           </Pressable>
-          )}
+        )}
+      </View>
 
-        </View>
-
-        <View style={styles.buttonContainer}>
+      <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={handleSuivantPress}
-          style={[styles.button, {
-                                  backgroundColor: '#6750A4',
-                                  width: '100%',
-                                  padding: 15,
-                                  borderRadius: 10,
-                                  alignItems: 'center',
-                                  opacity: isDateValid && isActivityValid ? 1 : 0.5, // Désactive le bouton si la date n'est pas valide
-                                  }]}
-          >
-            <Text style={styles.buttonText}>Suivant</Text>
-          </TouchableOpacity>
-
+          style={[
+            styles.button,
+            {
+              backgroundColor: '#6750A4',
+              width: '100%',
+              padding: 15,
+              borderRadius: 10,
+              alignItems: 'center',
+              opacity: isDateValid && isActivityValid ? 1 : 0.5,
+            },
+          ]}>
+          <Text style={styles.buttonText}>Suivant</Text>
+        </TouchableOpacity>
       </View>
-      
     </KeyboardAvoidingView>
-    );
-  };
+  );
+};
 
-export default PresenceActiviteDateScreen
+export default PresenceActiviteDateScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    marginTop: "30%",
+    marginTop: "10%",
   },
   label: {
     fontSize: 16,
